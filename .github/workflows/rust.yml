@@ -2,15 +2,30 @@ name: build and release (static + binstall naming)
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version (e.g. v1.2.3) used for manual runs"
+        required: false
+      create_draft_release:
+        description: "If true on manual runs, create a draft prerelease"
+        type: boolean
+        default: false
   push:
     tags: ["v*"]
 
 permissions:
   contents: write
 
+# One place to compute VERSION and whether we're publishing
 env:
   BIN_NAME: doge
-  VERSION: ${{ github.ref_name }} # e.g. v1.2.3
+  VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+  IS_TAG: ${{ github.ref_type == 'tag' }}
+  CREATE_DRAFT: ${{ inputs.create_draft_release == true }}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   # ---- Linux (static MUSL via cross) ----
@@ -33,12 +48,14 @@ jobs:
         run: |
           mkdir -p dist
           OUT="${BIN_NAME}-${VERSION}-${{ matrix.target }}"
-          cp target/${{ matrix.target }}/release/${BIN_NAME} dist/${OUT}
+          cp target/${{ matrix.target }}/release/${BIN_NAME} "dist/${OUT}"
           (cd dist && zip -r "${OUT}.zip" "${OUT}")
       - uses: actions/upload-artifact@v4
         with:
           name: linux-${{ matrix.target }}
           path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 7
 
   # ---- macOS (universal2) ----
   build-macos-universal:
@@ -51,15 +68,18 @@ jobs:
       - name: Lipo -> universal2
         run: |
           mkdir -p dist
+          OUT="${BIN_NAME}-${VERSION}-apple-darwin-universal2"
           lipo -create \
             target/x86_64-apple-darwin/release/${BIN_NAME} \
             target/aarch64-apple-darwin/release/${BIN_NAME} \
-            -output "dist/${BIN_NAME}-${VERSION}-apple-darwin-universal2"
-          (cd dist && zip -r "${BIN_NAME}-${VERSION}-apple-darwin-universal2.zip" "${BIN_NAME}-${VERSION}-apple-darwin-universal2")
+            -output "dist/${OUT}"
+          (cd dist && zip -r "${OUT}.zip" "${OUT}")
       - uses: actions/upload-artifact@v4
         with:
           name: macos-universal2
           path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 7
 
   # ---- Windows (32/64-bit) ----
   build-windows:
@@ -71,11 +91,7 @@ jobs:
           - x86_64-pc-windows-msvc
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+      - uses: dtolnay/rust-toolchain@stable
       - shell: pwsh
         run: rustup target add $env:TARGET
         env:
@@ -100,8 +116,10 @@ jobs:
         with:
           name: windows-${{ matrix.target }}
           path: dist\*.zip
+          if-no-files-found: error
+          retention-days: 7
 
-  # ---- Release ----
+  # ---- Release packaging + (optional) publish ----
   release:
     runs-on: ubuntu-latest
     needs: [build-linux-musl, build-macos-universal, build-windows]
@@ -114,10 +132,15 @@ jobs:
         run: |
           cd artifacts
           sha256sum * > SHA256SUMS.txt
+      # Publish for tag pushes, OR create a draft/prerelease when manually requested
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
+        if: env.IS_TAG == 'true' || env.CREATE_DRAFT == 'true'
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.IS_TAG == 'true' && env.VERSION || env.VERSION }}
+          name: ${{ env.VERSION }}
+          draft: ${{ env.IS_TAG != 'true' && env.CREATE_DRAFT }}
+          prerelease: ${{ env.IS_TAG != 'true' && env.CREATE_DRAFT }}
           files: |
             artifacts/*.zip
             artifacts/SHA256SUMS.txt
