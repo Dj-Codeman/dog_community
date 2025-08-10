@@ -39,6 +39,14 @@ jobs:
           - aarch64-unknown-linux-musl
           - armv7-unknown-linux-musleabihf
     steps:
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+        targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+        tool: cross
+      - name: Build (static MUSL)
+        run: cross build --release --target ${{ matrix.target }}
       - uses: actions/checkout@v4
       - uses: taiki-e/setup-cross@v1
       - run: rustup target add ${{ matrix.target }}
