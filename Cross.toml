@@ -27,5 +27,5 @@ pre-build = [
 [target.armv7-unknown-linux-musleabihf]
 pre-build = [
   "bash -lc \"apt-get update && apt-get install -y --no-install-recommends curl ca-certificates build-essential perl file make pkg-config && rm -rf /var/lib/apt/lists/*\"",
-  "bash -lc 'set -eux; v=3.3.1; curl -fsSL https://www.openssl.org/source/openssl-${v}.tar.gz -o /tmp/openssl.tar.gz; tar -xzf /tmp/openssl.tar.gz -C /tmp; cd /tmp/openssl-${v}; CC=armv7-linux-musleabihf-gcc AR=armv7-linux-musleabihf-ar RANLIB=armv7-linux-musleabihf-ranlib ./Configure no-shared no-tests --prefix=/opt/openssl/armv7-unknown-linux-musleabihf; make -j$(nproc); make install_sw; rm -rf /tmp/openssl*'"
+  "bash -lc 'set -eux; v=3.3.1; curl -fsSL https://www.openssl.org/source/openssl-${v}.tar.gz -o /tmp/openssl.tar.gz; tar -xzf /tmp/openssl.tar.gz -C /tmp; cd /tmp/openssl-${v}; command -v arm-linux-musleabihf-gcc; CC=arm-linux-musleabihf-gcc AR=arm-linux-musleabihf-ar RANLIB=arm-linux-musleabihf-ranlib ./Configure no-shared no-tests --prefix=/opt/openssl/armv7-unknown-linux-musleabihf; make -j$(nproc); make install_sw; rm -rf /tmp/openssl*'"
 ]
