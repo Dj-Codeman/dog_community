@@ -29,41 +29,43 @@ concurrency:
 
 jobs:
   # ---- Linux (static MUSL via cross) ----
-  build-linux-musl:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target:
-          - x86_64-unknown-linux-musl
-          - i686-unknown-linux-musl
-          - aarch64-unknown-linux-musl
-          - armv7-unknown-linux-musleabihf
-    steps:
-      - uses: dtolnay/rust-toolchain@stable
-        with:
+build-linux-musl:
+  runs-on: ubuntu-latest
+  strategy:
+    matrix:
+      target:
+        - x86_64-unknown-linux-musl
+        - i686-unknown-linux-musl
+        - aarch64-unknown-linux-musl
+        - armv7-unknown-linux-musleabihf
+  steps:
+    - uses: actions/checkout@v4
+
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        # rustup target isn't strictly needed for cross, but harmless
         targets: ${{ matrix.target }}
-      - uses: taiki-e/install-action@v2
-        with:
+
+    - uses: taiki-e/install-action@v2
+      with:
         tool: cross
-      - name: Build (static MUSL)
-        run: cross build --release --target ${{ matrix.target }}
-      - uses: actions/checkout@v4
-      - uses: taiki-e/setup-cross@v1
-      - run: rustup target add ${{ matrix.target }}
-      - name: Build (static MUSL)
-        run: cross build --release --target ${{ matrix.target }}
-      - name: Package
-        run: |
-          mkdir -p dist
-          OUT="${BIN_NAME}-${VERSION}-${{ matrix.target }}"
-          cp target/${{ matrix.target }}/release/${BIN_NAME} "dist/${OUT}"
-          (cd dist && zip -r "${OUT}.zip" "${OUT}")
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-${{ matrix.target }}
-          path: dist/*.zip
-          if-no-files-found: error
-          retention-days: 7
+
+    - name: Build (static MUSL)
+      run: cross build --release --target ${{ matrix.target }}
+
+    - name: Package
+      run: |
+        mkdir -p dist
+        OUT="${BIN_NAME}-${VERSION}-${{ matrix.target }}"
+        cp target/${{ matrix.target }}/release/${BIN_NAME} "dist/${OUT}"
+        (cd dist && zip -r "${OUT}.zip" "${OUT}")
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: linux-${{ matrix.target }}
+        path: dist/*.zip
+        if-no-files-found: error
+        retention-days: 7
 
   # ---- macOS (universal2) ----
   build-macos-universal:
