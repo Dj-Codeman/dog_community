@@ -30,6 +30,9 @@ concurrency:
 jobs:
   # ---- Linux (static MUSL via cross) ----
   build-linux-musl:
+  env:
+    PKG_CONFIG_ALLOW_CROSS: "1"
+    OPENSSL_STATIC: "1"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -40,26 +43,26 @@ jobs:
           - armv7-unknown-linux-musleabihf
     steps:
       - uses: actions/checkout@v4
-  
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           # rustup target isn't strictly needed for cross, but harmless
           targets: ${{ matrix.target }}
-  
+
       - uses: taiki-e/install-action@v2
         with:
           tool: cross
-  
+
       - name: Build (static MUSL)
         run: cross build --release --target ${{ matrix.target }}
-  
+
       - name: Package
         run: |
           mkdir -p dist
           OUT="${BIN_NAME}-${VERSION}-${{ matrix.target }}"
           cp target/${{ matrix.target }}/release/${BIN_NAME} "dist/${OUT}"
           (cd dist && zip -r "${OUT}.zip" "${OUT}")
-  
+
       - uses: actions/upload-artifact@v4
         with:
           name: linux-${{ matrix.target }}
