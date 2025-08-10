@@ -1,0 +1,27 @@
+name: attach-to-v0.2.9
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upload-assets:
+    runs-on: self-hosted
+    steps:
+      # Pull artifacts from THIS run (rerun if you need fresh builds)
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      # Upload them to the existing v0.2.9 release
+      - name: Upload to release v0.2.9
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.2.9
+          files: |
+            artifacts/*.zip
+            artifacts/SHA256SUMS.txt
+          fail_on_unmatched_files: true
