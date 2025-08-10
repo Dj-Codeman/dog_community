@@ -247,6 +247,7 @@ impl Inputs {
     fn load_fallbacks(&mut self) {
         if self.record_types.is_empty() {
             self.record_types.push(RecordType::A);
+            self.record_types.push(RecordType::AAAA);
         }
 
         if self.classes.is_empty() {
@@ -528,7 +529,7 @@ mod test {
         fn fallbacks() -> Self {
             Inputs {
                 domains:         vec![ /* No domains by default */ ],
-                record_types:    vec![ RecordType::A ],
+                record_types:    vec![ RecordType::A, RecordType::AAAA ],
                 classes:         vec![ QClass::IN ],
                 resolver_types:  vec![ ResolverType::SystemDefault ],
                 transport_types: vec![ TransportType::Automatic ],

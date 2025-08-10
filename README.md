@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/license/Dj-Codeman/doge?style=flat-square&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
-  <img href="https://saythanks.io/to/Dj-Codeman" src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" alt="Say thanks!" />
+  <a href="https://saythanks.io/to/Dj-Codeman"><img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" alt="Say thanks!" /></a>
   <img src="https://img.shields.io/github/last-commit/Dj-Codeman/doge?style=flat-square&logo=git&logoColor=white&color=0080ff" alt="last-commit">
   <img src="https://img.shields.io/github/languages/top/Dj-Codeman/doge?style=flat-square&color=0080ff" alt="repo-top-language">
   <img src="https://img.shields.io/github/languages/count/Dj-Codeman/doge?style=flat-square&color=0080ff" alt="repo-language-count">
@@ -111,6 +111,11 @@
     take awhile - forever to fix ( please drop a PR ) in those cases :). </p>
 
 <h4>Website</h4>
-    <p> I will make a website at some point... for the time being nothing to drastic has changed from the dog <a href=" https://dns.lookup.dog">website</a>  
-    </p> 
+  <h5> THE FUTURE IS NOW OLDMAN !!!</h5>
+  <p>The long awaited website is here: <a href="https://dog.ramfield.net/">CHECK ME OUT!!!</a></p>
+  
+  
+    <p><s> I will make a website at some point... for the time being nothing to drastic has changed from the dog <a href=" https://dns.lookup.dog">website</a>  
+    </s></p> 
+    <p> The original website no-longer exists. I'll make a new website for doge.... at some point</p>
 </div>
