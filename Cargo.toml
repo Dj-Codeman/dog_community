@@ -12,18 +12,12 @@ exclude = [
 homepage = "https://dns.lookup.dog/"
 license = "MIT"
 
-version = "0.2.8"
+version = "0.2.9"
 
 [[bin]]
 name = "doge"
 path = "src/main.rs"
 doctest = false
-
-
-#[workspace]
-#members = [
-#  "dns-transport",
-#]
 
 
 # make dev builds faster by excluding debug symbols
@@ -77,3 +71,10 @@ with_https = ["doge_transport/with_https"]
 with_nativetls = ["doge_transport/with_nativetls"]
 with_nativetls_vendored = ["with_nativetls", "doge_transport/with_nativetls", "doge_transport/with_nativetls_vendored"]
 with_rustls = ["doge_transport/with_rustls"]
+
+[package.metadata.binstall]
+# publishing pattern doge-{version}-{target}.zip
+pkg-url = "{ repo }/releases/download/{ version }/{ name }-{ version }-{ target }.zip"
+pkg-fmt = "zip"
+bin-dir = "."
+pkg-checksum-url = "{ repo }/releases/download/{ version }/SHA256SUMS.txt"

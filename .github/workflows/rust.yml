@@ -1,95 +1,123 @@
-name: build static binary
+name: build and release (static + binstall naming)
+
 on:
   workflow_dispatch:
   push:
-    branches:
-      - release
-    tags:
-      - 'latest'
-jobs:  
-  build-linux:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  BIN_NAME: doge
+  VERSION: ${{ github.ref_name }} # e.g. v1.2.3
+
+jobs:
+  # ---- Linux (static MUSL via cross) ----
+  build-linux-musl:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-musl
+          - i686-unknown-linux-musl
+          - aarch64-unknown-linux-musl
+          - armv7-unknown-linux-musleabihf
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install OpenSSL dependency
+      - uses: actions/checkout@v4
+      - uses: taiki-e/setup-cross@v1
+      - run: rustup target add ${{ matrix.target }}
+      - name: Build (static MUSL)
+        run: cross build --release --target ${{ matrix.target }}
+      - name: Package
         run: |
-          sudo apt-get install libssl-dev
-      - name: Update Cargo
-        run: cargo update
-      - name: Build
-        run: |
-          cargo build --target=x86_64-unknown-linux-gnu --release 
-          mkdir -p out
-          mv -v target/x86_64-unknown-linux-gnu/release/doge out/doge_linux_64bit
-      - name: Upload to Artifact
-        uses: actions/upload-artifact@v3
+          mkdir -p dist
+          OUT="${BIN_NAME}-${VERSION}-${{ matrix.target }}"
+          cp target/${{ matrix.target }}/release/${BIN_NAME} dist/${OUT}
+          (cd dist && zip -r "${OUT}.zip" "${OUT}")
+      - uses: actions/upload-artifact@v4
         with:
-          name: binary_linux
-          path: ./out/*
-  build-macos:
+          name: linux-${{ matrix.target }}
+          path: dist/*.zip
+
+  # ---- macOS (universal2) ----
+  build-macos-universal:
     runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Update Cargo
-        run: cargo update
-      - name: Setup Dependencies
+      - uses: actions/checkout@v4
+      - run: rustup target add x86_64-apple-darwin aarch64-apple-darwin
+      - run: cargo build --release --target x86_64-apple-darwin
+      - run: cargo build --release --target aarch64-apple-darwin
+      - name: Lipo -> universal2
         run: |
-          rustup target add aarch64-apple-darwin
-          rustup target add x86_64-apple-darwin
-      - name: Build
-        run: |
-          cargo build --target=aarch64-apple-darwin --release
-          cargo build --target=x86_64-apple-darwin --release
-          mkdir -p out
-          mv -v target/aarch64-apple-darwin/release/doge out/doge_darwin_arm64
-          mv -v target/x86_64-apple-darwin/release/doge out/doge_darwin_x86_64
-      - name: Upload to Artifact
-        uses: actions/upload-artifact@v3
+          mkdir -p dist
+          lipo -create \
+            target/x86_64-apple-darwin/release/${BIN_NAME} \
+            target/aarch64-apple-darwin/release/${BIN_NAME} \
+            -output "dist/${BIN_NAME}-${VERSION}-apple-darwin-universal2"
+          (cd dist && zip -r "${BIN_NAME}-${VERSION}-apple-darwin-universal2.zip" "${BIN_NAME}-${VERSION}-apple-darwin-universal2")
+      - uses: actions/upload-artifact@v4
         with:
-          name: binary_macos
-          path: ./out/*
+          name: macos-universal2
+          path: dist/*.zip
+
+  # ---- Windows (32/64-bit) ----
   build-windows:
-     runs-on: windows-latest
-     steps:
-       - name: Checkout
-         uses: actions/checkout@v3
-       - name: Install Rust Toolchain
-         uses: actions-rs/toolchain@v1
-         with:
-           profile: minimal
-           toolchain: stable
-           override: true
-       - name: Setup Windows Dependencies
-         run: rustup target add aarch64-pc-windows-msvc
-       - name: Build
-         run: |
-           cargo build --release --target x86_64-pc-windows-msvc
-           mkdir -p out
-           move target\x86_64-pc-windows-msvc\release\doge.exe out\doge_windows_x86_64.exe
-       - name: Upload to Artifact
-         uses: actions/upload-artifact@v3
-         with:
-           name: binary_windows
-           path: ./out/*
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        target:
+          - i686-pc-windows-msvc
+          - x86_64-pc-windows-msvc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - shell: pwsh
+        run: rustup target add $env:TARGET
+        env:
+          TARGET: ${{ matrix.target }}
+      - name: Build
+        shell: pwsh
+        run: cargo build --release --target $env:TARGET
+        env:
+          TARGET: ${{ matrix.target }}
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -Type Directory -Force dist | Out-Null
+          $out = "${env:BIN_NAME}-${env:VERSION}-${env:TARGET}.exe"
+          Copy-Item "target\$env:TARGET\release\${env:BIN_NAME}.exe" "dist\$out"
+          Compress-Archive -Path "dist\$out" -DestinationPath "dist\$out.zip" -Force
+        env:
+          BIN_NAME: ${{ env.BIN_NAME }}
+          VERSION: ${{ env.VERSION }}
+          TARGET: ${{ matrix.target }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.target }}
+          path: dist\*.zip
+
+  # ---- Release ----
   release:
     runs-on: ubuntu-latest
-    needs: 
-      - build-linux
-      - build-windows
-      - build-macos
+    needs: [build-linux-musl, build-macos-universal, build-windows]
     steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          path: ./artifacts
-      - name: Organize Files
+          path: artifacts
+          merge-multiple: true
+      - name: Checksums
         run: |
-          mkdir -p out
-          mv -v artifacts/**/doge_* out/
-      - name: Release
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+          cd artifacts
+          sha256sum * > SHA256SUMS.txt
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: ./out/doge_*
+          files: |
+            artifacts/*.zip
+            artifacts/SHA256SUMS.txt

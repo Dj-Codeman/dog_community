@@ -180,7 +180,7 @@ checksum = "56254986775e3233ffa9c4d7d3faaf6d36a2c09d30b20687e9f88bc8bafc16c8"
 
 [[package]]
 name = "dns-doge"
-version = "0.2.8"
+version = "0.2.9"
 dependencies = [
  "ansi_term",
  "atty",
@@ -409,7 +409,6 @@ name = "log"
 version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
-
 
 [[package]]
 name = "matches"
@@ -1171,7 +1170,6 @@ dependencies = [
  "quote",
  "syn",
 ]
-
 
 [[package]]
 name = "zeroize"
