@@ -51,6 +51,8 @@ json = "0.12"
 # logging
 log = "0.4"
 
+openssl = { version = "0.10", features = ["vendored"] }
+
 # windows default nameserver determination
 [target.'cfg(windows)'.dependencies]
 ipconfig = { version = "0.3" }

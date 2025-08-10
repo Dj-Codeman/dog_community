@@ -53,18 +53,6 @@ jobs:
         with:
           tool: cross
 
-      - name: Set OpenSSL vars for target
-        run: |
-          case "${{ matrix.target }}" in
-            x86_64-unknown-linux-musl)    DIR=/opt/openssl/x86_64-unknown-linux-musl ;;
-            i686-unknown-linux-musl)      DIR=/opt/openssl/i686-unknown-linux-musl ;;
-            aarch64-unknown-linux-musl)   DIR=/opt/openssl/aarch64-unknown-linux-musl ;;
-            armv7-unknown-linux-musleabihf) DIR=/opt/openssl/armv7-unknown-linux-musleabihf ;;
-          esac
-          echo "OPENSSL_DIR=$DIR" >> "$GITHUB_ENV"
-          echo "PKG_CONFIG_PATH=$DIR/lib/pkgconfig:$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
-
-
       - name: Build (static MUSL)
         run: cross build --release --target ${{ matrix.target }}
 

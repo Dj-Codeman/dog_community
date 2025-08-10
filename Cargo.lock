@@ -191,6 +191,7 @@ dependencies = [
  "ipconfig",
  "json",
  "log",
+ "openssl",
  "pretty_assertions",
  "rand",
 ]
