@@ -33,7 +33,7 @@ jobs:
   env:
     PKG_CONFIG_ALLOW_CROSS: "1"
     OPENSSL_STATIC: "1"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         target:
@@ -134,7 +134,7 @@ jobs:
 
   # ---- Release packaging + (optional) publish ----
   release:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [build-linux-musl, build-macos-universal, build-windows]
     steps:
       - uses: actions/download-artifact@v4
