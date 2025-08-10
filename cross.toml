@@ -1,0 +1,14 @@
+[build.env]
+passthrough = ["OPENSSL_STATIC", "PKG_CONFIG_ALLOW_CROSS"]
+
+[target.x86_64-unknown-linux-musl]
+pre-build = ["apk", "add", "--no-cache", "openssl-dev", "openssl-libs-static", "pkgconf"]
+
+[target.i686-unknown-linux-musl]
+pre-build = ["apk", "add", "--no-cache", "openssl-dev", "openssl-libs-static", "pkgconf"]
+
+[target.aarch64-unknown-linux-musl]
+pre-build = ["apk", "add", "--no-cache", "openssl-dev", "openssl-libs-static", "pkgconf"]
+
+[target.armv7-unknown-linux-musleabihf]
+pre-build = ["apk", "add", "--no-cache", "openssl-dev", "openssl-libs-static", "pkgconf"]
