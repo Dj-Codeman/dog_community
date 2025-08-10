@@ -1,14 +1,31 @@
 [build.env]
 passthrough = ["OPENSSL_STATIC", "PKG_CONFIG_ALLOW_CROSS"]
 
+# --- x86_64-unknown-linux-musl ---
 [target.x86_64-unknown-linux-musl]
-pre-build = ["bash", "-lc", "apt-get update && apt-get install -y --no-install-recommends pkg-config && rm -rf /var/lib/apt/lists/*"]
+# Build and install a static OpenSSL into /opt/openssl/<target>
+pre-build = [
+  "bash -lc \"apt-get update && apt-get install -y --no-install-recommends curl ca-certificates build-essential perl file make pkg-config && rm -rf /var/lib/apt/lists/*\"",
+  "bash -lc 'set -eux; v=3.3.1; curl -fsSL https://www.openssl.org/source/openssl-${v}.tar.gz -o /tmp/openssl.tar.gz; tar -xzf /tmp/openssl.tar.gz -C /tmp; cd /tmp/openssl-${v}; CC=x86_64-linux-musl-gcc AR=x86_64-linux-musl-ar RANLIB=x86_64-linux-musl-ranlib ./Configure no-shared no-tests --prefix=/opt/openssl/x86_64-unknown-linux-musl; make -j$(nproc); make install_sw; rm -rf /tmp/openssl*'"
+]
 
+# --- i686-unknown-linux-musl ---
 [target.i686-unknown-linux-musl]
-pre-build = ["bash", "-lc", "apt-get update && apt-get install -y --no-install-recommends pkg-config && rm -rf /var/lib/apt/lists/*"]
+pre-build = [
+  "bash -lc \"apt-get update && apt-get install -y --no-install-recommends curl ca-certificates build-essential perl file make pkg-config && rm -rf /var/lib/apt/lists/*\"",
+  "bash -lc 'set -eux; v=3.3.1; curl -fsSL https://www.openssl.org/source/openssl-${v}.tar.gz -o /tmp/openssl.tar.gz; tar -xzf /tmp/openssl.tar.gz -C /tmp; cd /tmp/openssl-${v}; CC=i686-linux-musl-gcc AR=i686-linux-musl-ar RANLIB=i686-linux-musl-ranlib ./Configure no-shared no-tests --prefix=/opt/openssl/i686-unknown-linux-musl; make -j$(nproc); make install_sw; rm -rf /tmp/openssl*'"
+]
 
+# --- aarch64-unknown-linux-musl ---
 [target.aarch64-unknown-linux-musl]
-pre-build = ["bash", "-lc", "apt-get update && apt-get install -y --no-install-recommends pkg-config && rm -rf /var/lib/apt/lists/*"]
+pre-build = [
+  "bash -lc \"apt-get update && apt-get install -y --no-install-recommends curl ca-certificates build-essential perl file make pkg-config && rm -rf /var/lib/apt/lists/*\"",
+  "bash -lc 'set -eux; v=3.3.1; curl -fsSL https://www.openssl.org/source/openssl-${v}.tar.gz -o /tmp/openssl.tar.gz; tar -xzf /tmp/openssl.tar.gz -C /tmp; cd /tmp/openssl-${v}; CC=aarch64-linux-musl-gcc AR=aarch64-linux-musl-ar RANLIB=aarch64-linux-musl-ranlib ./Configure no-shared no-tests --prefix=/opt/openssl/aarch64-unknown-linux-musl; make -j$(nproc); make install_sw; rm -rf /tmp/openssl*'"
+]
 
+# --- armv7-unknown-linux-musleabihf ---
 [target.armv7-unknown-linux-musleabihf]
-pre-build = ["bash", "-lc", "apt-get update && apt-get install -y --no-install-recommends pkg-config && rm -rf /var/lib/apt/lists/*"]
+pre-build = [
+  "bash -lc \"apt-get update && apt-get install -y --no-install-recommends curl ca-certificates build-essential perl file make pkg-config && rm -rf /var/lib/apt/lists/*\"",
+  "bash -lc 'set -eux; v=3.3.1; curl -fsSL https://www.openssl.org/source/openssl-${v}.tar.gz -o /tmp/openssl.tar.gz; tar -xzf /tmp/openssl.tar.gz -C /tmp; cd /tmp/openssl-${v}; CC=armv7-linux-musleabihf-gcc AR=armv7-linux-musleabihf-ar RANLIB=armv7-linux-musleabihf-ranlib ./Configure no-shared no-tests --prefix=/opt/openssl/armv7-unknown-linux-musleabihf; make -j$(nproc); make install_sw; rm -rf /tmp/openssl*'"
+]
