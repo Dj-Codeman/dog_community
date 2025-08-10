@@ -27,7 +27,7 @@ fn main() -> io::Result<()> {
 
     let usage   = include_str!("src/usage.txt");
     let tagline = "doge \\1;32m\\0m command-line DNS client";
-    let url     = "https://dns.lookup.dog/";
+    let url     = "https://dog.ramfield.net/";
 
     let ver =
         if is_debug_build() {
