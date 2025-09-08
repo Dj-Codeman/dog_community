@@ -1,0 +1,15 @@
+plot(0, 0, xlim=c(-10,10), ylim=c(-10,10), asp=1, type="n")
+symbols(5, -5, circles = 2, inches = FALSE, add= TRUE
+        )
+symbols(-5, -5, circles = 2, inches = FALSE, add= TRUE
+)
+polygon(
+  x = c(-3, 3, 3, -3),
+  y = c(-7, -7, 6, 6),
+  border = "black",
+  col = NA) 
+theta <- seq(0, pi, length.out = 100)
+x_top <- 3 * cos(theta)
+y_top <- 6 + 3 * sin(theta)
+
+lines(x_top, y_top, col = "black")
