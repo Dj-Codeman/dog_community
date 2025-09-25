@@ -88,7 +88,8 @@
 <div>
 <h3>Current and Upcoming packages</h3>
     <pre>
-        <code>Cargo: cargo install dns-doge
+        <code>Homebrew: brew install doge
+        Cargo: cargo install dns-doge
         ArchLinux: yay -S dns_doge
         Ubuntu/Debian: Comming Soon
         RHEL/Fedora/Cenos: Publishing rpm</code>
