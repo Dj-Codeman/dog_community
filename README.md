@@ -91,7 +91,8 @@
         <code>Cargo: cargo install dns-doge
         ArchLinux: yay -S dns_doge
         Ubuntu/Debian: Comming Soon
-        RHEL/Fedora/Cenos: Publishing rpm</code>
+        RHEL/Fedora/Cenos: Publishing rpm
+        Homebrew: brew install doge</code>
     </pre>
     
 <h3>Docker/Podman</h3>    
