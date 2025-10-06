@@ -9,7 +9,7 @@ exclude = [
     "/completions/*", "/man/*", "/xtests/*",
     "/dog-screenshot.png", "/Justfile", "/README.md", "/.rustfmt.toml", "/.travis.yml", "/makefile",
 ]
-homepage = "https://dns.lookup.dog/"
+homepage = "https://dog.ramfield.net/"
 license = "MIT"
 
 version = "0.2.9"
