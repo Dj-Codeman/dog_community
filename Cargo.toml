@@ -29,6 +29,8 @@ debug = true
 lto = true
 overflow-checks = true
 panic = "abort"
+strip = true
+opt-level = "z"
 
 
 [dependencies]

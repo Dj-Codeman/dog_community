@@ -12,14 +12,13 @@ build:
 
 build-release:
 	@cargo build --release --verbose
-	# @strip "${CARGO_TARGET_DIR:-target}/release/doge"
 
 build-time:
 	@cargo +nightly clean
 	@cargo +nightly build -Z timings
 
 build-quick:
-	@cargo build --no-default-features	
+	@cargo build --no-default-features
 
 # Check the compilation
 check:
