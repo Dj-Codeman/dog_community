@@ -10,6 +10,7 @@ exclude = [
     "/dog-screenshot.png", "/Justfile", "/README.md", "/.rustfmt.toml", "/.travis.yml", "/makefile",
 ]
 homepage = "https://dog.ramfield.net/"
+repository = "https://github.com/Dj-Codeman/dog_community"
 license = "MIT"
 
 version = "0.2.9"
